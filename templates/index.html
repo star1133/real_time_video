@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouTube Watch Party</title>
+  <meta name="theme-color" content="#071226">
+  <meta name="description" content="สร้างห้องดู YouTube พร้อมกันแบบเรียลไทม์">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}?v=7">
+</head>
+<body class="home-page">
+  <main class="home-card">
+    <section class="home-intro" aria-labelledby="page-title">
+      <a class="brand home-brand" href="/" aria-label="Watch Party หน้าหลัก">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        Watch Party
+      </a>
+      <div class="hero-copy">
+        <h1 id="page-title">ดู YouTube<br>ไปด้วยกัน</h1>
+        <p class="lead">สร้างห้อง เลือกวิดีโอ แล้วส่งลิงก์ให้เพื่อนเข้ามาดูด้วยกัน</p>
+      </div>
+      <div class="sync-illustration" aria-hidden="true">
+        <span class="screen screen-one"><i></i></span>
+        <span class="screen screen-two"><i></i></span>
+        <span class="screen screen-three"><i></i></span>
+        <span class="playhead"></span>
+      </div>
+      <p class="privacy-note">วิดีโอเล่นผ่าน YouTube · ระบบช่วยปรับเวลาให้ใกล้เคียงกัน</p>
+    </section>
+
+    <section class="home-actions" aria-label="เริ่มดูพร้อมกัน">
+      <div class="action-block create-block">
+        <h2>เปิดห้องของคุณ</h2>
+        <p>คุณเป็นเจ้าของห้อง (Host) เลือกวิดีโอและควบคุมการเล่น</p>
+        <form action="/rooms" method="post">
+          <button class="primary" type="submit"><span>สร้างห้องใหม่</span><b aria-hidden="true">▶</b></button>
+        </form>
+      </div>
+      <div class="ticket-cut" aria-hidden="true"><span>หรือ</span></div>
+      <form id="join-form" class="join-form">
+        <label for="room-code">เข้าห้องที่มีอยู่</label>
+        <p id="room-code-help">กรอกรหัสตัวเลข 3 หลักจากเพื่อน หรือเปิดลิงก์เชิญได้เลย</p>
+        <div class="join-row">
+          <input id="room-code" inputmode="numeric" maxlength="3" pattern="[0-9]{3}" autocomplete="off" placeholder="123" aria-describedby="room-code-help join-message" aria-label="รหัสห้อง 3 หลัก" required>
+          <button type="submit">เข้าห้อง</button>
+        </div>
+      </form>
+      <p id="join-message" class="error" role="alert"></p>
+    </section>
+  </main>
+  <script src="{{ url_for('static', path='/js/index.js') }}?v=2"></script>
+</body>
+</html>

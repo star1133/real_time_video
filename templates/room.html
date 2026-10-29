@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#071226">
+  <title>ห้อง {{ room_id }} · Watch Party</title>
+  <link rel="preconnect" href="https://www.youtube.com">
+  <link rel="preconnect" href="https://s.ytimg.com" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}?v=9">
+</head>
+<body class="room-page" data-room-id="{{ room_id }}">
+  <header class="room-header">
+    <a class="brand" href="/" aria-label="Watch Party หน้าหลัก">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      Watch Party
+    </a>
+    <div class="room-code"><span>ห้อง</span> <strong>{{ room_id }}</strong></div>
+    <div class="share-actions">
+      <button id="share-button" class="quiet-button" type="button">เชิญเพื่อน · คัดลอกลิงก์</button>
+      <button id="show-qr-button" class="quiet-button" type="button">QR Code</button>
+    </div>
+  </header>
+  <main class="room-layout">
+    <div class="invite-feedback">
+      <p id="share-status" role="status"></p>
+      <label id="share-fallback" hidden>คัดลอกลิงก์นี้แล้วส่งให้เพื่อน
+        <input id="invite-url" type="text" readonly aria-label="ลิงก์เชิญผู้ชม">
+      </label>
+    </div>
+    <section class="video-panel" aria-label="วิดีโอในห้อง">
+      <div class="stage-label">
+        <span id="role-status" class="status-badge viewer">กำลังเข้าห้อง</span>
+        <div class="status-row" role="status"><span id="connection-dot" class="dot" aria-hidden="true"></span><span id="connection-status">กำลังเชื่อมต่อ…</span></div>
+      </div>
+      <p id="role-help" class="role-help">กำลังตรวจสอบสิทธิ์ในห้อง…</p>
+      <div id="connection-help" class="connection-help" hidden>
+        <span>ระบบจะเชื่อมต่อให้อัตโนมัติ หากรอนาน ให้ตรวจสอบอินเทอร์เน็ตแล้วลองโหลดใหม่</span>
+        <button id="reload-room" class="quiet-button" type="button">โหลดห้องใหม่</button>
+      </div>
+      <div class="player-shell">
+        <div id="player"></div>
+        <div id="player-cover" class="player-cover" hidden>
+          <img id="player-poster" alt="" referrerpolicy="no-referrer">
+          <div class="player-cover-action">
+            <p id="player-cover-message"></p>
+            <button id="player-cover-play" class="primary" type="button">เล่นวิดีโอ</button>
+            <a id="player-direct-link" href="https://www.youtube.com/" target="_blank" rel="noopener" hidden>เปิดวิดีโอบน YouTube</a>
+          </div>
+        </div>
+      </div>
+      <p id="now-playing" class="now-playing" hidden><span>กำลังเล่น</span> <strong id="now-playing-title"></strong></p>
+      <form id="video-form" class="video-form" hidden>
+        <label for="video-url">เพิ่มวิดีโอหรือ playlist จาก YouTube</label>
+        <div class="video-input-row">
+        <input id="video-url" type="url" inputmode="url" autocomplete="url" placeholder="วางลิงก์ YouTube หรือลิงก์ playlist" required>
+        <button id="play-now-button" class="primary" type="submit">เล่นเลย</button>
+        <button id="queue-add-button" class="quiet-button" type="button">เพิ่มเข้าคิว</button>
+        </div>
+        <label id="playlist-option" class="check-option" hidden>
+          <input id="playlist-import" type="checkbox" checked>
+          นำเข้าทั้ง playlist เข้าคิว (สูงสุด 200 คลิป)
+        </label>
+      </form>
+      <section class="volume-panel" aria-labelledby="volume-label">
+        <div class="volume-heading">
+          <div>
+            <strong id="volume-label">เสียงเครื่องนี้</strong>
+            <span id="volume-help">ปรับระดับเสียงได้โดยไม่เปลี่ยนเวลาเล่น</span>
+          </div>
+          <output id="volume-value" for="volume-slider">100%</output>
+        </div>
+        <div class="volume-controls">
+          <button id="mute-button" class="quiet-button volume-mute" type="button" aria-label="ปิดเสียง">ปิดเสียง</button>
+          <input id="volume-slider" class="volume-slider" type="range" min="0" max="100" step="1" value="100" aria-label="ระดับเสียง">
+          <label id="follow-volume-wrap" class="follow-volume" hidden>
+            <input id="follow-volume" type="checkbox" checked>
+            ใช้เสียงตาม Host
+          </label>
+        </div>
+        <div id="sync-mode-row" class="sync-mode-row" hidden>
+          <label for="sync-mode">การซิงก์ของเครื่องนี้</label>
+          <select id="sync-mode">
+            <option value="auto">อัตโนมัติ (แนะนำ) · ปรับความเร็วแบบมองไม่เห็น</option>
+            <option value="smooth">ลื่นไหล · ยอมให้คลาดได้มากกว่า</option>
+            <option value="precise">แม่นยำที่สุด · เริ่มปรับตั้งแต่คลาด 40ms</option>
+          </select>
+        </div>
+      </section>
+      <section id="queue-panel" class="queue-panel" aria-labelledby="queue-title">
+        <div class="queue-heading">
+          <h2 id="queue-title">คิววิดีโอ <span id="queue-count" class="queue-count">0</span></h2>
+          <div id="queue-host-actions" class="queue-actions" hidden>
+            <button id="queue-next" class="quiet-button" type="button">ข้ามไปคลิปถัดไป</button>
+            <button id="queue-shuffle" class="quiet-button" type="button">สุ่มลำดับ</button>
+            <button id="queue-clear" class="quiet-button" type="button">ล้างคิว</button>
+          </div>
+        </div>
+        <div id="queue-settings" class="queue-settings" hidden>
+          <label class="check-option"><input id="queue-autoplay" type="checkbox" checked> เล่นคลิปถัดไปอัตโนมัติเมื่อจบ</label>
+          <label class="check-option"><input id="queue-allow-viewers" type="checkbox"> ให้ผู้ชมเพิ่มคลิปเข้าคิวได้</label>
+        </div>
+        <p id="queue-importing" class="queue-importing" role="status" hidden>กำลังนำเข้า playlist จาก YouTube…</p>
+        <ol id="queue-list" class="queue-list"></ol>
+        <p id="queue-empty" class="queue-empty">ยังไม่มีคลิปในคิว</p>
+      </section>
+      <div class="playback-ready-actions">
+        <button id="resume-playback" class="resume-playback primary" type="button" hidden>แตะเพื่อเล่นต่อ</button>
+        <button id="muted-playback" class="resume-playback quiet-button" type="button" hidden>เล่นแบบปิดเสียง</button>
+      </div>
+      <p id="error-message" class="error" role="alert"></p>
+      <details class="room-status">
+        <summary>รายละเอียดการเชื่อมต่อและซิงก์</summary>
+        <div class="status-details">
+          <span id="peer-status" class="hint">P2P กำลังเชื่อม…</span>
+          <span id="network-status" class="hint">กำลังวัดเครือข่าย…</span>
+          <span id="sync-status" class="hint">กำลังเทียบนาฬิกา…</span>
+          <span id="cohort-status" class="hint">กำลังรับสถานะห้อง…</span>
+        </div>
+        <p class="hint">ถ้าเชื่อมตรงถึง Host ผ่าน Wi-Fi/LAN เดียวกัน ระบบจะซิงก์ละเอียดที่สุด · ถ้าไม่มีทางตรง ระบบจะเน้นเล่นลื่นและไม่กระตุกเพื่อไล่เวลาจุกจิก</p>
+      </details>
+    </section>
+    <aside class="room-note">
+      <span aria-hidden="true">⌁</span>
+      <p>เจ้าของห้องควบคุมการเล่นและคิว · วางลิงก์ playlist เพื่อดูต่อกันหลายคลิป · ผู้ชมปรับเสียงและโหมดซิงก์ของตัวเองได้โดยไม่กระทบเพื่อน</p>
+    </aside>
+  </main>
+  <dialog id="qr-dialog" class="qr-dialog" aria-labelledby="qr-title">
+    <div class="qr-dialog-content">
+      <button id="close-qr-button" class="qr-close" type="button" aria-label="ปิด">×</button>
+      <h2 id="qr-title">สแกนเพื่อเข้าห้อง {{ room_id }}</h2>
+      <img id="qr-image" alt="QR Code สำหรับเข้าห้อง {{ room_id }}" width="320" height="320">
+      <a id="qr-viewer-link" class="qr-viewer-link" href="/room/{{ room_id }}"></a>
+      <p class="hint">QR นี้เป็นลิงก์ผู้ชมและไม่มีสิทธิ์ Host</p>
+    </div>
+  </dialog>
+  <script src="{{ url_for('static', path='/js/sync-clock.js') }}?v=6"></script>
+  <script src="{{ url_for('static', path='/js/youtube-player.js') }}?v=26"></script>
+  <script src="{{ url_for('static', path='/js/peer-sync.js') }}?v=6"></script>
+  <script src="{{ url_for('static', path='/js/app.js') }}?v=34"></script>
+</body>
+</html>

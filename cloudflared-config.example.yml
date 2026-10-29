@@ -1,0 +1,10 @@
+# Copy this file to your cloudflared configuration directory, then replace the
+# placeholders. Keep the credentials JSON outside this project.
+tunnel: YOUR-TUNNEL-UUID
+credentials-file: C:\Users\YOUR_USER\.cloudflared\YOUR-TUNNEL-UUID.json
+protocol: quic
+
+ingress:
+  - hostname: watch.example.com
+    service: http://localhost:3055
+  - service: http_status:404

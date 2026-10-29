@@ -1,0 +1,41 @@
+x-app: &app
+  build: .
+  restart: unless-stopped
+  init: true
+  expose: ["3055"]
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3055/health', timeout=2)"]
+    interval: 10s
+    timeout: 3s
+    retries: 3
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
+
+services:
+  shard0:
+    <<: *app
+    environment: {WATCHPARTY_SHARD_ID: "0"}
+  shard1:
+    <<: *app
+    environment: {WATCHPARTY_SHARD_ID: "1"}
+  shard2:
+    <<: *app
+    environment: {WATCHPARTY_SHARD_ID: "2"}
+  shard3:
+    <<: *app
+    environment: {WATCHPARTY_SHARD_ID: "3"}
+  gateway:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    ports: ["127.0.0.1:3055:80"]
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      shard0: {condition: service_healthy}
+      shard1: {condition: service_healthy}
+      shard2: {condition: service_healthy}
+      shard3: {condition: service_healthy}
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}

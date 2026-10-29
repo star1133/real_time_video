@@ -1,0 +1,10 @@
+.venv
+.git
+__pycache__
+**/__pycache__
+*.log
+*.log.*
+artifacts
+tests
+.codex
+.agents
