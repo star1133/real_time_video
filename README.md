@@ -154,7 +154,7 @@ tools/load_probe.py             ตัววัดหลายห้องพร
 
 ## Requirements
 
-Python 3.12 (the test suite hangs on Python 3.10 with Starlette's WebSocket test client). The Dockerfile uses `python:3.12-slim`.
+Python 3.11+ (tests run on 3.12; the WebSocket tests hang on Python 3.10). The Dockerfile uses `python:3.12-slim`.
 
 ## License
 
